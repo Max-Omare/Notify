@@ -1,5 +1,6 @@
 module Admin
   class NewsController < Admin::ApplicationController
+    before_action :get_users
     # Overwrite any of the RESTful controller actions to implement custom behavior
     # For example, you may want to send an email after a foo is updated.
     #
@@ -7,6 +8,18 @@ module Admin
     #   super
     #   send_foo_updated_email(requested_resource)
     # end
+
+    def create
+      super
+
+      @users.each do |user|
+        NewsMailer.with(news: @news).news_posted_email(user).deliver_later
+      end
+    end
+
+    def get_users
+      @users = User.all
+    end
 
     # Override this method to specify custom lookup behavior.
     # This will be used to set the resource for the `show`, `edit`, and `update`
